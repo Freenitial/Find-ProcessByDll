@@ -6,7 +6,7 @@ Scanner to find **which running processes have loaded specific DLLs** — locall
 
 ## ✨ Features
 
-* ⚡ **Blazing fast** process & module enumeration via Win32: `EnumProcesses`, `EnumProcessModulesEx`, `GetModuleFileNameEx`
+* ⚡ **Fast** module enumeration via Win32: `EnumProcesses`, `EnumProcessModulesEx`, `GetModuleFileNameEx`
 * 🧠 **Smart matching**: filename-only (`mspmsnsv.dll`) **or** full-path wildcards (`C:\Windows\System32\msp*.dll`)
 * 🖥️ **Local & Remote** scanning (PowerShell Remoting). Connectivity is fast checked on **SMB 445** first
 * 🗂️ **Deduplicated, sorted output** readable in console
