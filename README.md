@@ -1,7 +1,7 @@
 # Find-ProcessByDll 🔎🧩
 
 Scanner to identify **which running processes have loaded specific DLLs**, locally or on remote Windows machines.  
-It is recommended to copy-paste only the function in PowerShell console, then call it when needed.  
+It is recommended to **copy-paste only the function** in PowerShell console, then call it when needed.  
 Also available as .ps1 or .bat
 
 ---
