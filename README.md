@@ -1,7 +1,8 @@
 # Find-ProcessByDll 🔎🧩
 
 Scanner to identify **which running processes have loaded specific DLLs**, locally or on remote Windows machines.  
-Single-file **BAT + PowerShell hybrid**, no external dependencies, fast Win32 enumeration via P/Invoke.
+It is recommended to copy-paste only the function in PowerShell console, then call it when needed.
+Also available as .ps1 or .bat
 
 ---
 
