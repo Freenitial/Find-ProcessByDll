@@ -1,16 +1,23 @@
 # Find-ProcessByDll 🔎🧩
 
-Scanner to find **which running processes have loaded specific DLLs** — locally or across remote Windows machines. Hybrid **BAT+PowerShell single file**, zero dependencies, pure Win32 P/Invoke for speed.
+Scanner to identify **which running processes have loaded specific DLLs**, locally or on remote Windows machines.  
+Single-file **BAT + PowerShell hybrid**, no external dependencies, fast Win32 enumeration via P/Invoke.
 
 ---
 
 ## ✨ Features
 
-* ⚡ **Fast** module enumeration via Win32: `EnumProcesses`, `EnumProcessModulesEx`, `GetModuleFileNameEx`
-* 🧠 **Smart matching**: filename-only (`mspmsnsv.dll`) **or** full-path wildcards (`C:\Windows\System32\msp*.dll`)
-* 🖥️ **Local & Remote** scanning (PowerShell Remoting). Connectivity is fast checked on **SMB 445** first
-* 🗂️ **Deduplicated, sorted output** readable in console
-* 🧱 **Single file** (hybrid launcher). Run it as `.cmd` or `.ps1` — same tool, your call
+* ⚡ **Fast module enumeration** using native Win32 APIs  
+  (`EnumProcesses`, `EnumProcessModulesEx`, `GetModuleFileNameEx`)
+* 🧠 **Flexible matching**
+  * Filename only: `ntdll.dll`
+  * Full path with wildcards: `C:\Windows\System32\msp*.dll`
+* 🖥️ **Local and remote scanning**
+  * PowerShell Remoting for execution
+  * Fast reachability check via **TCP 445 (SMB)** before connecting
+* 🧵 **Parallel execution**
+* 🗂️ **Sorted output**, readable directly in console
+* 🧱 **Single file**: runnable as `.bat`, `.cmd`, or `.ps1`
 
 ---
 
@@ -20,45 +27,94 @@ Scanner to find **which running processes have loaded specific DLLs** — locall
 
 ---
 
-## 🔧 Usage
+## 🔧 Parameters
 
-```batch
-Find-ProcessByDll.bat -DllPatterns <string[]> [-TargetComputerNames <string[]>]
-```
+### `-DllPatterns <string[]>` (mandatory)
+One or more wildcard patterns describing DLLs to search for.
 
-```powershell
-.\Find-ProcessByDll.ps1 -DllPatterns <string[]> [-TargetComputerNames <string[]>]
-```
+Accepted forms:
+* Filename only  
+  `bcrypt.dll`
+* Full or partial path with wildcards  
+  `C:\Windows\System32\api-ms-win-*.dll`
 
-```
-Or just copy paste the function in your console, then call directly Find-ProcessByDll
-```
+Matching logic automatically switches between filename-only and full-path mode.
+
+---
+
+### `-ComputerNames <string[]>` (optional)
+List of computers to scan.
+
+* Defaults to the **local machine**
+* Supports hostnames and IP addresses
+* Each target is first tested on **TCP port 445**
+  * Unreachable hosts are reported and skipped
+* Order is preserved in output
+
+---
+
+### `-Credential <PSCredential>` (optional)
+Credentials used for remote execution.
+
+* Automatically prompted **only if needed**
+  * Triggered when at least one target is an IP address
+* Reused across hosts
+* Reset automatically if access is denied on a remote system
+
+---
+
+### `-MaxThreads <int>` (optional, default: `10`)
+Maximum number of parallel runspaces.
+
+* Controls how many computers are scanned simultaneously
+* Higher values increase speed but also CPU and memory usage
+* Safe default for mixed local / remote environments
+
+---
+
+### `-SortingTimeout <int>` (optional, default: `6`)
+Maximum time (in seconds) to wait before forcing ordered output.
+
+* Results are displayed **in the same order as `-ComputerNames`**
+* If some hosts are slow, output continues once the timeout is reached
+* Prevents the console from blocking on long-running machines
 
 ---
 
 ## 🧪 Examples
 
-**Multiple patterns at once**
+**Search multiple DLL patterns locally**
+```powershell
+Find-ProcessByDll -DllPatterns dbghelp*.dll,api-ms-win-*.dll
+````
+
+**Scan multiple remote computers**
 
 ```powershell
-.\Find-ProcessByDll.ps1 -DllPatterns dbghelp*.dll,api-ms-win-*.dll
+Find-ProcessByDll -DllPatterns bcrypt.dll -ComputerNames PC01,PC02
 ```
 
-**Scan multiple remote hosts**
+**Limit concurrency**
 
 ```powershell
-.\Find-ProcessByDll.ps1 -DllPatterns bcrypt.dll -TargetComputerNames PC01,PC02
+Find-ProcessByDll -DllPatterns ntdll.dll -MaxThreads 4
 ```
 
 ---
 
 ## 📦 Requirements
 
-* PowerShell 3.0+ recommended
-* **Remote** scans: PowerShell Remoting/WinRM enabled on targets
-* Best run **as Administrator** for complete module visibility
+* PowerShell 3.0+
+* **Remote scans** require WinRM / PowerShell Remoting enabled
+* Best results when run **as Administrator**
+  (some processes hide loaded modules otherwise)
 
 ---
 
+## 🧠 Notes
 
+* Uses native APIs instead of `Get-Process -Module` for performance and reliability
+* Works without external tools, WMI dependencies are minimized
+* Designed for troubleshooting, incident response, and low-level diagnostics
 
+---
